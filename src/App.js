@@ -16,9 +16,6 @@ class App extends React.Component {
       .then(function(json) {
         localStorage.setItem('challenges', JSON.stringify(json));
       })
-      .catch(function() {
-        // TODO
-      });
     }
     this.setState({ challenges: JSON.parse(localStorage.getItem('challenges')) })
   }
