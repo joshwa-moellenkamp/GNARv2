@@ -21,16 +21,25 @@ class App extends React.Component {
   }
 
   render () {
+
+
+
     if(this.state.challenges != null && this.state.challenges !== 'undefined') {
+      var challenges = this.state.challenges
+      var challengeCategories = Object.keys(challenges)
       return (
         <div className="App">
           <header className="App-header">
-            <h1>H1</h1>
-            <table>
-              <tbody>
-                { this.renderElements() }
-              </tbody>
-            </table>
+            {
+              challengeCategories.map((category, index) => {
+                return (
+                  <div>
+                    <h3>{category}</h3>
+                    { this.renderElements(challenges[challengeCategories[index]]) }
+                  </div>
+                )
+              })
+            }
           </header>
         </div>
       )
@@ -39,20 +48,20 @@ class App extends React.Component {
     }
   }
 
-  renderElements() {
-    var categories = Object.keys(this.state.challenges)
-    console.log(categories)
-    console.log(this.state.challenges[categories[0]])
-    return this.state.challenges[categories[0]].map((challenge, index) => {
+  renderElements(challenges) {
+    return challenges.map((challenge, index) => {
       const { name, points, description } = challenge
-      console.log('name', name)
       return (
-        <tr key={index}>
-          <td>{name}</td>
-          <td>{points}</td>
-          <td>{description}</td>
-          <td></td>
-        </tr>
+        <table>
+          <tbody>
+            <tr key={index}>
+              <td>{name}</td>
+              <td>{points}</td>
+              <td>{description}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
       )
     })
   }
