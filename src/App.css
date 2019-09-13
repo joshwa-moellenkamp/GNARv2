@@ -1,5 +1,7 @@
 .App {
   text-align: center;
+  font-family: 'Roboto', sans-serif;
+  margin: '30px auto';
 }
 
 .App-logo {
@@ -16,6 +18,7 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
+  font-family: 'Roboto', sans-serif;
   color: white;
 }
 
