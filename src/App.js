@@ -7,6 +7,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Collapsible from 'react-collapsible';
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card'
 
 const useStyles = makeStyles({
   padding: "3em 3em",
@@ -93,16 +94,13 @@ class App extends React.Component {
   render () {
     if(this.state.challenges != null && this.state.challenges !== 'undefined') {
       var challenges = this.state.challenges
-      var challengeCategories = Object.keys(challenges)
+      var categories = Object.keys(challenges)
       return (
-        challengeCategories.map((category, index) => {
-          return (
-            <ChallengeCategoryTable 
-              category={ challengeCategories[index] }
-              challenges={ challenges[challengeCategories[index]] }
-            />
-          )
-        })
+        <body style={{ backgroundColor: "darkSlateGrey" }}>
+          <div style={{ padding: "5% 5%" }}>
+            <CollapsibleCategoryCollection categories={categories} challenges={challenges} />
+          </div>
+        </body>
       )
     } else {
       return null
@@ -110,12 +108,29 @@ class App extends React.Component {
   }
 }
 
-function ChallengeCategoryTable({ category, challenges }) {
+function CollapsibleCategoryCollection( { categories, challenges }) {
+  const classes = useStyles();
+  return (
+    categories.map((category, index) => (
+      <div style={{ padding: ".1em .1em" }}>
+        <Card className={classes.card}>
+          <CollapsibleCategory 
+            category={ categories[index] }
+            challenges={ challenges[categories[index]] }
+          />
+        </Card>
+      </div>
+    ))
+  )
+}
+
+function CollapsibleCategory({ category, challenges }) {
   const classes = useStyles();
   return (
     <Collapsible 
       transitionTime={300}
-      trigger={ category.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') }>
+      trigger={ category.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') }
+      style={{ fontWeight: "bolder" }}>
       <Table style={{ tableLayout: "auto" }}>
         <TableHead>
           <TableRow>
