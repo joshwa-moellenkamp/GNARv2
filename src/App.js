@@ -180,7 +180,7 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
                       className={classes.button}
                       onClick={(e) => challengeDecrement(value[0])}
                     >
-                      DECREMENT
+                      {value[1] > 1 ? 'DECREMENT' : 'REMOVE'}
                     </Button>
                   </TableCell>
                   <TableCell>{value[1]}</TableCell>
