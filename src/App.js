@@ -115,13 +115,17 @@ class App extends React.Component {
       return (
         <div style={{ padding: "5% 5%" }}>
           <Scoreboard
-            completed={this.state.completed}
             challenges={this.state.challenges}
+            completed={this.state.completed}
           />
           <CollapsibleCategoryCollection
             challenges={this.state.challenges}
             categories={this.state.categories}
             challengeCompleted={this.challengeCompleted.bind(this)}
+          />
+          <CollapsibleChallengesCompleted
+            challenges={this.state.challenges}
+            completed={this.state.completed}
           />
         </div>
       )
@@ -131,7 +135,54 @@ class App extends React.Component {
   }
 }
 
-function Scoreboard({ completed, challenges }) {
+function CollapsibleChallengesCompleted({ challenges, completed }) {
+  const classes = useStyles();
+  return (
+    <div style={{ padding: "2em .1em" }}>
+      <Card className={classes.card}>
+        <Collapsible
+          transitionTime={300}
+          trigger={"Completed Challenges"}
+          style={{ fontWeight: "bolder" }}
+        >
+          <Table style={{ tableLayout: "auto" }}>
+            <TableHead>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell style={{ width: "20%" }}>Challenge</TableCell>
+                <TableCell style={{ width: "10%" }}>Points</TableCell>
+                <TableCell style={{ width: "70%" }}>Description</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Array.from(completed).map((value) => (
+                <TableRow>
+                  <TableCell>
+                    <Button variant="contained" className={classes.button}>
+                      DECREMENT
+                    </Button>
+                  </TableCell>
+                  <TableCell className={classes.challenge}>
+                    {challenges.get(value[0]).name}
+                  </TableCell>
+                  <TableCell className={classes.pointVal}>
+                    {challenges.get(value[0]).points}
+                  </TableCell>
+                  <TableCell className={classes.description}>
+                    {challenges.get(value[0]).description}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Collapsible>
+      </Card>
+    </div>
+  );
+} 
+
+
+function Scoreboard({ challenges, completed }) {
   var score = 0
   completed.forEach((timesCompleted, challengeId) => (
     score += challenges.get(challengeId).points * timesCompleted
