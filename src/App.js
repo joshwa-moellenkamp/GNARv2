@@ -35,7 +35,7 @@ const useStyles = makeStyles({
   pointVal: {
     fontSize: 16,
     fontWeight: "bolder",
-    color: "#3483eb",
+    // color: "#3483eb",
   },
   description: {
     fontSize: 12,
@@ -53,8 +53,7 @@ const useStyles = makeStyles({
 });
 
 class Challenge {
-  constructor(category, name, points, description, other) {
-    this.category = category;
+  constructor(name, points, description, other) {
     this.name = name;
     this.points = points;
     this.description = description;
@@ -78,29 +77,31 @@ class App extends React.Component {
         localStorage.setItem('challenges', JSON.stringify(json));
       })
     }
-    // Process the JSON into `Challenge` objects before setting state
-    this.setState({ challenges: JSON.parse(localStorage.getItem('challenges')) })
+    var challenges = []
+    let data = JSON.parse(localStorage.getItem('challenges'))
+    Object.keys(data).forEach((category) => {
+      var categoryChallenges = data[category]
+      challenges.push([{category, categoryChallenges}])
+    })
 
-    // var challenges = []
+      // challenges.forEach((categoryMap) => {
+  //   categoryMap.forEach((category) => {
+  //     category.categoryChallenges.map((challenge, index) => {
+  //       console.log(challenge, category.category)
+  //     })
+  //   })
+  // })
 
-    // var json = localStorage.getItem('challenges');
-    // json.map((value) => {
-    //   challenges.push(new Gnarly(category, value.name, value.points, value.description, value.other));
-    // });
-    
-
+    this.setState({ challenges: challenges })
   }
 
   render () {
-    if(this.state.challenges != null && this.state.challenges !== 'undefined') {
-      var challenges = this.state.challenges
-      var categories = Object.keys(challenges)
+    if(this.state.challenges != null) {
       return (
-        <body style={{ backgroundColor: "darkSlateGrey" }}>
-          <div style={{ padding: "5% 5%" }}>
-            <CollapsibleCategoryCollection categories={categories} challenges={challenges} />
-          </div>
-        </body>
+        <div style={{ padding: "5% 5%" }}>
+          <Scoreboard/>
+          <CollapsibleCategoryCollection challenges={this.state.challenges}/>
+        </div>
       )
     } else {
       return null
@@ -108,28 +109,38 @@ class App extends React.Component {
   }
 }
 
-function CollapsibleCategoryCollection( { categories, challenges }) {
+function Scoreboard() {
+  return (
+    <h2>Score</h2>
+  )
+} 
+
+/**
+ * This component renders a Collapsible challenge table inside of a card for each challenge category.
+ * The `challenges` argument should be the raw `this.state.challenges` object constructed in the
+ * `componentDidMount()` lifecycle method for the App class. 
+ */
+function CollapsibleCategoryCollection( { challenges }) {
   const classes = useStyles();
   return (
-    categories.map((category, index) => (
-      <div style={{ padding: ".1em .1em" }}>
-        <Card className={classes.card}>
-          <CollapsibleCategory 
-            category={ categories[index] }
-            challenges={ challenges[categories[index]] }
-          />
-        </Card>
-      </div>
+    challenges.map((categoryMap) => (
+      categoryMap.map((category) => (
+        <div style={{padding: ".1em .1em"}}>
+          <Card className={classes.card}>
+            <CollapsibleCategory category={category}/>
+          </Card>
+        </div>
+      ))
     ))
   )
 }
 
-function CollapsibleCategory({ category, challenges }) {
+function CollapsibleCategory({ category }) {
   const classes = useStyles();
   return (
     <Collapsible 
       transitionTime={300}
-      trigger={ category.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') }
+      trigger={ category.category.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') }
       style={{ fontWeight: "bolder" }}>
       <Table style={{ tableLayout: "auto" }}>
         <TableHead>
@@ -141,16 +152,16 @@ function CollapsibleCategory({ category, challenges }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {challenges.map((challenge, index) => (
-            <TableRow key={index}>
+          {category.categoryChallenges.map((value) => (
+            <TableRow>
               <TableCell>
-                <Button variant="contained" color="#3483eb" className={ classes.button }>
+                <Button variant="contained" color="primary" className={ classes.button }>
                   COMPLETE
                 </Button>
               </TableCell> 
-              <TableCell className={ classes.challenge }>{challenge.name}</TableCell>
-              <TableCell className={ classes.pointVal }>{challenge.points}</TableCell>
-              <TableCell className={ classes.description }>{challenge.description}</TableCell>
+              <TableCell className={classes.challenge}>{value.name}</TableCell>
+              <TableCell className={classes.pointVal}>{value.points}</TableCell>
+              <TableCell className={classes.description}>{value.description}</TableCell>
             </TableRow>
           ))}
         </TableBody>
