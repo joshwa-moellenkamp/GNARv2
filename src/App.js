@@ -52,15 +52,6 @@ const useStyles = makeStyles({
   }
 });
 
-class Challenge {
-  constructor(name, points, description, other) {
-    this.name = name;
-    this.points = points;
-    this.description = description;
-    this.other = other;
-  }
-}
-
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -84,22 +75,14 @@ class App extends React.Component {
       challenges.push([{category, categoryChallenges}])
     })
 
-      // challenges.forEach((categoryMap) => {
-  //   categoryMap.forEach((category) => {
-  //     category.categoryChallenges.map((challenge, index) => {
-  //       console.log(challenge, category.category)
-  //     })
-  //   })
-  // })
-
-    this.setState({ challenges: challenges })
+    this.setState({ challenges: challenges, score: 16 })
   }
 
   render () {
     if(this.state.challenges != null) {
       return (
         <div style={{ padding: "5% 5%" }}>
-          <Scoreboard/>
+          <Scoreboard score={this.state.score}/>
           <CollapsibleCategoryCollection challenges={this.state.challenges}/>
         </div>
       )
@@ -109,9 +92,9 @@ class App extends React.Component {
   }
 }
 
-function Scoreboard() {
+function Scoreboard({score}) {
   return (
-    <h2>Score</h2>
+    <h2>GNAR Value: {score}</h2>
   )
 } 
 
@@ -120,7 +103,7 @@ function Scoreboard() {
  * The `challenges` argument should be the raw `this.state.challenges` object constructed in the
  * `componentDidMount()` lifecycle method for the App class. 
  */
-function CollapsibleCategoryCollection( { challenges }) {
+function CollapsibleCategoryCollection({ challenges }) {
   const classes = useStyles();
   return (
     challenges.map((categoryMap) => (
