@@ -133,12 +133,9 @@ class App extends React.Component {
 
 function Scoreboard({ completed, challenges }) {
   var score = 0
-  for (let completedChallenge of completed) {
-    var challengeId = completedChallenge[0]
-    var timesCompleted = completedChallenge[1]
-    var challengePointsValue = challenges.get(challengeId).points
-    score += challengePointsValue * timesCompleted
-  }
+  completed.forEach((timesCompleted, challengeId) => (
+    score += challenges.get(challengeId).points * timesCompleted
+  ))
 
   return (
     <h2>GNAR Value: {score}</h2>
