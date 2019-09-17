@@ -104,8 +104,23 @@ class App extends React.Component {
     if(!this.state.completed.has(key)) {
       completed.set(key, 1)
     } else {
-      const numTimesEarned = completed.get(key);
-      completed.set(key, numTimesEarned + 1)
+      let numTimesEarned = completed.get(key)
+      completed.set(key, ++numTimesEarned)
+    }
+    this.setState(completed)
+  }
+
+  challengeDecrement(key) {
+    var completed = this.state.completed
+    if(!this.state.completed.has(key)) {
+      console.warn('Could not decrement challenge!')
+    } else if(this.state.completed.get(key) > 1) {
+      // if the value is greater than 1, decrement
+      let numTimesEarned = completed.get(key)
+      completed.set(key, --numTimesEarned)
+    } else {
+      // if the value is 1, remove the challenge
+      completed.delete(key)
     }
     this.setState(completed)
   }
@@ -126,6 +141,7 @@ class App extends React.Component {
           <CollapsibleChallengesCompleted
             challenges={this.state.challenges}
             completed={this.state.completed}
+            challengeDecrement={this.challengeDecrement.bind(this)}
           />
         </div>
       )
@@ -135,7 +151,7 @@ class App extends React.Component {
   }
 }
 
-function CollapsibleChallengesCompleted({ challenges, completed }) {
+function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrement }) {
   const classes = useStyles();
   return (
     <div style={{ padding: "2em .1em" }}>
@@ -149,19 +165,25 @@ function CollapsibleChallengesCompleted({ challenges, completed }) {
             <TableHead>
               <TableRow>
                 <TableCell></TableCell>
+                <TableCell style={{ width: "10%" }}>Times Earned</TableCell>
                 <TableCell style={{ width: "20%" }}>Challenge</TableCell>
                 <TableCell style={{ width: "10%" }}>Points</TableCell>
-                <TableCell style={{ width: "70%" }}>Description</TableCell>
+                <TableCell style={{ width: "60%" }}>Description</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {Array.from(completed).map((value) => (
                 <TableRow>
                   <TableCell>
-                    <Button variant="contained" className={classes.button}>
+                    <Button 
+                      variant="contained" 
+                      className={classes.button}
+                      onClick={(e) => challengeDecrement(value[0])}
+                    >
                       DECREMENT
                     </Button>
                   </TableCell>
+                  <TableCell>{value[1]}</TableCell>
                   <TableCell className={classes.challenge}>
                     {challenges.get(value[0]).name}
                   </TableCell>
@@ -180,7 +202,6 @@ function CollapsibleChallengesCompleted({ challenges, completed }) {
     </div>
   );
 } 
-
 
 function Scoreboard({ challenges, completed }) {
   var score = 0
