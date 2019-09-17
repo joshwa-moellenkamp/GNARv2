@@ -52,6 +52,15 @@ const useStyles = makeStyles({
   }
 });
 
+class Challenge {
+  constructor(name, points, description, other) {
+    this.name = name;
+    this.points = points;
+    this.description = description;
+    this.other = other;
+  }
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -68,22 +77,52 @@ class App extends React.Component {
         localStorage.setItem('challenges', JSON.stringify(json));
       })
     }
-    var challenges = []
+
+    var categories = []
+    var challenges = new Map()
     let data = JSON.parse(localStorage.getItem('challenges'))
+    var i = 0
     Object.keys(data).forEach((category) => {
-      var categoryChallenges = data[category]
-      challenges.push([{category, categoryChallenges}])
+      var categoryKeys = []
+      data[category].forEach((challenge) => {
+        categoryKeys.push(i)
+        var chall = new Challenge(challenge.name, challenge.points, challenge.description, challenge.other)
+        challenges.set(i, chall)
+        i++
+      })
+      categories.push({category, categoryKeys})
     })
 
-    this.setState({ challenges: challenges, score: 16 })
+    // This map intended to have key (from challenges), value (number of times challenge completed)
+    var completed = new Map()
+
+    this.setState({ challenges: challenges, categories: categories, completed: completed })
+  }
+
+  challengeCompleted(key) {
+    var completed = this.state.completed
+    if(!this.state.completed.has(key)) {
+      completed.set(key, 1)
+    } else {
+      const numTimesEarned = completed.get(key);
+      completed.set(key, numTimesEarned + 1)
+    }
+    this.setState(completed)
   }
 
   render () {
     if(this.state.challenges != null) {
       return (
         <div style={{ padding: "5% 5%" }}>
-          <Scoreboard score={this.state.score}/>
-          <CollapsibleCategoryCollection challenges={this.state.challenges}/>
+          <Scoreboard
+            completed={this.state.completed}
+            challenges={this.state.challenges}
+          />
+          <CollapsibleCategoryCollection
+            challenges={this.state.challenges}
+            categories={this.state.categories}
+            challengeCompleted={this.challengeCompleted.bind(this)}
+          />
         </div>
       )
     } else {
@@ -92,38 +131,45 @@ class App extends React.Component {
   }
 }
 
-function Scoreboard({score}) {
+function Scoreboard({ completed, challenges }) {
+  var score = 0
+  for (let completedChallenge of completed) {
+    var challengeId = completedChallenge[0]
+    var timesCompleted = completedChallenge[1]
+    var challengePointsValue = challenges.get(challengeId).points
+    score += challengePointsValue * timesCompleted
+  }
+
   return (
     <h2>GNAR Value: {score}</h2>
   )
 } 
 
-/**
- * This component renders a Collapsible challenge table inside of a card for each challenge category.
- * The `challenges` argument should be the raw `this.state.challenges` object constructed in the
- * `componentDidMount()` lifecycle method for the App class. 
- */
-function CollapsibleCategoryCollection({ challenges }) {
+function CollapsibleCategoryCollection({ challenges, categories, challengeCompleted }) {
   const classes = useStyles();
+  var i = 0
   return (
-    challenges.map((categoryMap) => (
-      categoryMap.map((category) => (
-        <div style={{padding: ".1em .1em"}}>
-          <Card className={classes.card}>
-            <CollapsibleCategory category={category}/>
-          </Card>
-        </div>
-      ))
+    categories.map((category) => (
+      <div style={{padding: ".1em .1em"}}>
+        <Card className={classes.card} key={i++}>
+          <CollapsibleCategory
+            categoryName={category.category}
+            categoryChallengeIds={category.categoryKeys}
+            challenges={challenges}
+            challengeCompleted={challengeCompleted.bind(this)}
+          />
+        </Card>
+      </div>
     ))
   )
 }
 
-function CollapsibleCategory({ category }) {
+function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, challengeCompleted }) {
   const classes = useStyles();
   return (
     <Collapsible 
       transitionTime={300}
-      trigger={ category.category.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') }
+      trigger={ categoryName.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') }
       style={{ fontWeight: "bolder" }}>
       <Table style={{ tableLayout: "auto" }}>
         <TableHead>
@@ -135,16 +181,20 @@ function CollapsibleCategory({ category }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {category.categoryChallenges.map((value) => (
-            <TableRow>
+          {categoryChallengeIds.map((key) => (
+            <TableRow key={key}>
               <TableCell>
-                <Button variant="contained" color="primary" className={ classes.button }>
+                <Button
+                  variant="contained"
+                  className={classes.button}
+                  onClick={(e) => challengeCompleted(key)}
+                >
                   COMPLETE
                 </Button>
               </TableCell> 
-              <TableCell className={classes.challenge}>{value.name}</TableCell>
-              <TableCell className={classes.pointVal}>{value.points}</TableCell>
-              <TableCell className={classes.description}>{value.description}</TableCell>
+              <TableCell className={classes.challenge}>{challenges.get(key).name}</TableCell>
+              <TableCell className={classes.pointVal}>{challenges.get(key).points}</TableCell>
+              <TableCell className={classes.description}>{challenges.get(key).description}</TableCell>
             </TableRow>
           ))}
         </TableBody>
