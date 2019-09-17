@@ -153,6 +153,23 @@ class App extends React.Component {
 
 function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrement }) {
   const classes = useStyles();
+  console.log('completed length: ', completed.length)
+  if(Array.from(completed) === 'undefined' || Array.from(completed).length === 0) {
+    return (
+      <div style={{ padding: "2em .1em" }}>
+        <Card className={classes.card}>
+          <Collapsible
+            transitionTime={300}
+            trigger={"Completed Challenges"}
+            style={{ fontWeight: "bolder" }}
+          >
+            <h5>You haven't completed any challenges yet! Get out there for heck's sake!</h5>
+          </Collapsible>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div style={{ padding: "2em .1em" }}>
       <Card className={classes.card}>
