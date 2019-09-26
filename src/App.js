@@ -8,6 +8,14 @@ import TableRow from '@material-ui/core/TableRow';
 import Collapsible from 'react-collapsible';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card'
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
+import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles({
   padding: "3em 3em",
@@ -95,8 +103,33 @@ class App extends React.Component {
 
     // This map intended to have key (from challenges), value (number of times challenge completed)
     var completed = new Map()
+    var dialogues = new Map()
+    dialogues.set(
+      "Background",
+      "Created by the late Shane McConkey and Dr. Robb Gaffney, " +
+      "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
+      "to the ski industry taking itself altogether too seriously. "+
+      "Earn points for riding particularly rad lines or achieving particularly " +
+      "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
+      "Losers pay for beer."
+    )
+    dialogues.set(
+      "Links",
+      <Paper>
+        <Link href={"http://simplemethod.com/GNAR.pdf"} variant="body2">
+          Adapted GNAR Rulesheet for Vail
+        </Link>
+        <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} variant="body2">
+          Vail Trailmaps
+        </Link>
+        <Link href={"http://squallywood.com/"} variant="body2">
+          Squallywood
+        </Link>
+      </Paper>
+    )
 
     this.setState({ challenges: challenges, categories: categories, completed: completed })
+    this.setState({ dialogues: dialogues })
   }
 
   challengeCompleted(key) {
@@ -143,6 +176,13 @@ class App extends React.Component {
             completed={this.state.completed}
             challengeDecrement={this.challengeDecrement.bind(this)}
           />
+          {Array.from(this.state.dialogues).map((value) => (
+            
+            <AlertDialog
+              title={value[0]}
+              content={value[1]}
+            />
+          ))}
         </div>
       )
     } else {
@@ -151,9 +191,44 @@ class App extends React.Component {
   }
 }
 
+function AlertDialog({ title, content }) {
+  const [open, setOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <div>
+      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+        {title}
+      </Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {content}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
+
 function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrement }) {
   const classes = useStyles();
-  console.log('completed length: ', completed.length)
   if(Array.from(completed) === 'undefined' || Array.from(completed).length === 0) {
     return (
       <div style={{ padding: "2em .1em" }}>
