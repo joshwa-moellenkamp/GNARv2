@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -16,8 +16,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
+import { green, red } from '@material-ui/core/colors';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   padding: "3em 3em",
   card: {
     minWidth: 275,
@@ -37,13 +38,16 @@ const useStyles = makeStyles({
     marginBottom: 12,
   },
   challenge: {
-    fontSize: 16,
-    fontWeight: "bold", 
+    // fontSize: 16,
+    // fontWeight: "bold", 
   },
   pointVal: {
-    fontSize: 16,
-    fontWeight: "bolder",
+    // fontSize: 16,
+    // fontWeight: "bolder",
     // color: "#3483eb",
+  },
+  button: {
+    margin: theme.spacing(1)
   },
   description: {
     fontSize: 12,
@@ -58,7 +62,7 @@ const useStyles = makeStyles({
     padding: "5em 5em",
     color: "red"
   }
-});
+}));
 
 class Challenge {
   constructor(name, points, description, other) {
@@ -267,13 +271,13 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
               {Array.from(completed).map((value) => (
                 <TableRow>
                   <TableCell>
-                    <Button 
+                    <RedButton 
                       variant="contained" 
                       className={classes.button}
                       onClick={(e) => challengeDecrement(value[0])}
                     >
                       {value[1] > 1 ? 'DECREMENT' : 'REMOVE'}
-                    </Button>
+                    </RedButton>
                   </TableCell>
                   <TableCell>{value[1]}</TableCell>
                   <TableCell className={classes.challenge}>
@@ -325,6 +329,26 @@ function CollapsibleCategoryCollection({ challenges, categories, challengeComple
   )
 }
 
+const GreenButton = withStyles(theme => ({
+  root: {
+    color: theme.palette.getContrastText(green[300]),
+    backgroundColor: green[300],
+    '&:hover': {
+      backgroundColor: green[500],
+    },
+  },
+}))(Button);
+
+const RedButton = withStyles(theme => ({
+  root: {
+    color: theme.palette.getContrastText(red[300]),
+    backgroundColor: red[300],
+    '&:hover': {
+      backgroundColor: red[500],
+    },
+  },
+}))(Button);
+
 function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, challengeCompleted }) {
   const classes = useStyles();
   return (
@@ -345,13 +369,12 @@ function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, c
           {categoryChallengeIds.map((key) => (
             <TableRow key={key}>
               <TableCell>
-                <Button
+                <GreenButton
                   variant="contained"
-                  className={classes.button}
                   onClick={(e) => challengeCompleted(key)}
                 >
                   COMPLETE
-                </Button>
+                </GreenButton>
               </TableCell> 
               <TableCell className={classes.challenge}>{challenges.get(key).name}</TableCell>
               <TableCell className={classes.pointVal}>{challenges.get(key).points}</TableCell>
