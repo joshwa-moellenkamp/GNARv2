@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,10 +15,10 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import { green, red } from '@material-ui/core/colors';
+import { TextFilter } from 'react-text-filter';
 
 const useStyles = makeStyles(theme => ({
   padding: "3em 3em",
@@ -63,6 +65,8 @@ const useStyles = makeStyles(theme => ({
     color: "red"
   }
 }));
+
+const challengeFilter = filter => challenge => challenge.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
 
 class Challenge {
   constructor(name, points, description, other) {
@@ -163,6 +167,19 @@ class App extends React.Component {
   }
 
   render () {
+    var challenges = []
+    if(this.state.challenges != null) {
+      this.state.challenges.forEach((challenge, id) => {
+        challenges.push(challenge.name)
+      })
+    }
+
+    const filteredChallenges = this.state.challengeFilter ?
+      challenges.filter(challengeFilter(this.state.challengeFilter)) :
+      challenges.slice(0);
+
+    console.log(filteredChallenges)
+
     if(this.state.challenges != null) {
       return (
         <div style={{ padding: "5% 5%" }}>
@@ -170,6 +187,22 @@ class App extends React.Component {
             challenges={this.state.challenges}
             completed={this.state.completed}
           />
+          <div style={{ padding: "2em .1em" }}>
+            <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
+              <Collapsible
+                transitionTime={300}
+                trigger={"Search for a Challenge"}
+                style={{ fontWeight: "bolder" }}
+              >
+                <TextFilter onFilter={({target: {value: challengeFilter}}) => this.setState({challengeFilter})}/>
+                <List
+                  items={filteredChallenges}
+                  challenges={challenges}
+                  challengeCompleted={this.challengeCompleted.bind(this)}
+                />
+              </Collapsible>
+            </Card>
+          </div>
           <CollapsibleCategoryCollection
             challenges={this.state.challenges}
             categories={this.state.categories}
@@ -231,12 +264,59 @@ function AlertDialog({ title, content }) {
   );
 }
 
+function Item({ item }) {
+  return <li>{item}</li>
+}
+
+function List({ items, challenges, challengeCompleted }) {
+  const classes = useStyles();
+  // const Items = items.map(item => <Item key={item} item={item} />);
+  // return <ul>{Items}</ul>;
+  return (
+    <Table style={{ tableLayout: "auto" }}>
+      <TableHead>
+        <TableRow>
+          <TableCell></TableCell>
+          <TableCell style={{ width: "20%" }}>Challenge</TableCell>
+          <TableCell style={{ width: "10%" }}>Points</TableCell>
+          <TableCell style={{ width: "60%" }}>Description</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {items.map((item) => (
+          <TableRow key={item}>
+            <TableCell>
+              <Button
+                variant="contained"
+                className={classes.button}
+                // onClick={(e) => challengeCompleted(key)}
+              >
+                Complete
+              </Button>
+            </TableCell>
+            <TableCell className={classes.challenge}>
+              {/* {challenges.get(value[0]).name} */}
+            </TableCell>
+            <TableCell className={classes.pointVal}>
+              {/* {challenges.get(value[0]).points} */}
+            </TableCell>
+            <TableCell className={classes.description}>
+              {/* {challenges.get(value[0]).description} */}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+
+}
+
 function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrement }) {
   const classes = useStyles();
   if(Array.from(completed) === 'undefined' || Array.from(completed).length === 0) {
     return (
       <div style={{ padding: "2em .1em" }}>
-        <Card className={classes.card}>
+        <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
           <Collapsible
             transitionTime={300}
             trigger={"Completed Challenges"}
@@ -276,7 +356,7 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
                       className={classes.button}
                       onClick={(e) => challengeDecrement(value[0])}
                     >
-                      {value[1] > 1 ? 'DECREMENT' : 'REMOVE'}
+                      {value[1] > 1 ? 'Decrement' : 'Remove'}
                     </RedButton>
                   </TableCell>
                   <TableCell>{value[1]}</TableCell>
@@ -373,7 +453,7 @@ function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, c
                   variant="contained"
                   onClick={(e) => challengeCompleted(key)}
                 >
-                  COMPLETE
+                  Complete
                 </GreenButton>
               </TableCell> 
               <TableCell className={classes.challenge}>{challenges.get(key).name}</TableCell>
