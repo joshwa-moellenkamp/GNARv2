@@ -16,9 +16,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Link from '@material-ui/core/Link';
-import Paper from '@material-ui/core/Paper';
 import { green, red } from '@material-ui/core/colors';
 import { TextFilter } from 'react-text-filter';
+
 
 const useStyles = makeStyles(theme => ({
   padding: "3em 3em",
@@ -69,8 +69,7 @@ const useStyles = makeStyles(theme => ({
 const challengeFilter = filter => challenge => challenge.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
 
 class Challenge {
-  constructor(name, points, description, other) {
-    this.name = name;
+  constructor(points, description, other) {
     this.points = points;
     this.description = description;
     this.other = other;
@@ -101,9 +100,9 @@ class App extends React.Component {
     Object.keys(data).forEach((category) => {
       var categoryKeys = []
       data[category].forEach((challenge) => {
-        categoryKeys.push(i)
-        var chall = new Challenge(challenge.name, challenge.points, challenge.description, challenge.other)
-        challenges.set(i, chall)
+        categoryKeys.push(challenge.name)
+        var chall = new Challenge(challenge.points, challenge.description, challenge.other)
+        challenges.set(challenge.name, chall)
         i++
       })
       categories.push({category, categoryKeys})
@@ -115,6 +114,7 @@ class App extends React.Component {
   }
 
   challengeCompleted(key) {
+    console.log('challengeCompleted() key: ', key)
     var completed = this.state.completed
     if(!this.state.completed.has(key)) {
       completed.set(key, 1)
@@ -152,7 +152,7 @@ class App extends React.Component {
       challenges.filter(challengeFilter(this.state.challengeFilter)) :
       challenges.slice(0);
 
-    console.log(filteredChallenges)
+    // console.log(filteredChallenges)
 
     if(this.state.challenges != null) {
       return (
@@ -262,8 +262,12 @@ function Item({ item }) {
 
 function List({ items, challenges, challengeCompleted }) {
   const classes = useStyles();
-  // const Items = items.map(item => <Item key={item} item={item} />);
+  console.log('items: ', items)
+  //const Items = items.map(item => <Item key={item} item={item} />);
   // return <ul>{Items}</ul>;
+  // console.log('items: ', items);
+  // console.log('challenges: ', challenges);
+  // console.log('challengeCompleted: ', challengeCompleted);
   return (
     <Table style={{ tableLayout: "auto" }}>
       <TableHead>
@@ -286,13 +290,13 @@ function List({ items, challenges, challengeCompleted }) {
                 Complete
               </Button>
             </TableCell>
-            <TableCell className={classes.challenge}>
-              {/* {challenges.get(value[0]).name} */}
+            <TableCell>
+              {item}
             </TableCell>
-            <TableCell className={classes.pointVal}>
+            <TableCell>
               {/* {challenges.get(value[0]).points} */}
             </TableCell>
-            <TableCell className={classes.description}>
+            <TableCell>
               {/* {challenges.get(value[0]).description} */}
             </TableCell>
           </TableRow>
@@ -320,6 +324,10 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
       </div>
     )
   }
+
+  Array.from(completed).map((value) => (
+    console.log('completed value: ', value)
+  ))
 
   return (
     <div style={{ padding: "2em .1em" }}>
@@ -353,7 +361,7 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
                   </TableCell>
                   <TableCell>{value[1]}</TableCell>
                   <TableCell className={classes.challenge}>
-                    {challenges.get(value[0]).name}
+                    {value[0]}
                   </TableCell>
                   <TableCell className={classes.pointVal}>
                     {challenges.get(value[0]).points}
@@ -422,7 +430,10 @@ const RedButton = withStyles(theme => ({
 }))(Button);
 
 function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, challengeCompleted }) {
-  const classes = useStyles();
+  // Array.from(categoryChallengeIds).map((challenge) => (
+  //   console.log(challenge)
+  // ))
+  
   return (
     <Collapsible 
       transitionTime={300}
@@ -438,19 +449,19 @@ function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, c
           </TableRow>
         </TableHead>
         <TableBody>
-          {categoryChallengeIds.map((key) => (
-            <TableRow key={key}>
+          {Array.from(categoryChallengeIds).map((challenge) => (
+            <TableRow key={challenge}>
               <TableCell>
                 <GreenButton
                   variant="contained"
-                  onClick={(e) => challengeCompleted(key)}
+                  onClick={(e) => challengeCompleted(challenge)}
                 >
                   Complete
                 </GreenButton>
               </TableCell> 
-              <TableCell className={classes.challenge}>{challenges.get(key).name}</TableCell>
-              <TableCell className={classes.pointVal}>{challenges.get(key).points}</TableCell>
-              <TableCell className={classes.description}>{challenges.get(key).description}</TableCell>
+              <TableCell>{challenge}</TableCell>
+              <TableCell>{challenges.get(challenge).points}</TableCell>
+              <TableCell>{challenges.get(challenge).description}</TableCell>
             </TableRow>
           ))}
         </TableBody>
