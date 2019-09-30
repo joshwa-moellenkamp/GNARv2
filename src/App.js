@@ -111,33 +111,7 @@ class App extends React.Component {
 
     // This map intended to have key (from challenges), value (number of times challenge completed)
     var completed = new Map()
-    var dialogues = new Map()
-    dialogues.set(
-      "Background",
-      "Created by the late Shane McConkey and Dr. Robb Gaffney, " +
-      "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
-      "to the ski industry taking itself altogether too seriously. "+
-      "Earn points for riding particularly rad lines or achieving particularly " +
-      "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
-      "Losers pay for beer."
-    )
-    dialogues.set(
-      "Links",
-      <Paper>
-        <Link href={"http://simplemethod.com/GNAR.pdf"} variant="body2">
-          Adapted GNAR Rulesheet for Vail
-        </Link>
-        <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} variant="body2">
-          Vail Trailmaps
-        </Link>
-        <Link href={"http://squallywood.com/"} variant="body2">
-          Squallywood
-        </Link>
-      </Paper>
-    )
-
     this.setState({ challenges: challenges, categories: categories, completed: completed })
-    this.setState({ dialogues: dialogues })
   }
 
   challengeCompleted(key) {
@@ -213,13 +187,31 @@ class App extends React.Component {
             completed={this.state.completed}
             challengeDecrement={this.challengeDecrement.bind(this)}
           />
-          {Array.from(this.state.dialogues).map((value) => (
-            
-            <AlertDialog
-              title={value[0]}
-              content={value[1]}
-            />
-          ))}
+          <AlertDialog
+            title={"Background"}
+            content={
+              "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
+              "to the ski industry taking itself altogether too seriously. "+
+              "Earn points for riding particularly rad lines or achieving particularly " +
+              "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
+              "Losers pay for beer."
+            }
+          />
+          <Button variant="outlined" color="primary">
+            <Link href={"http://simplemethod.com/GNAR.pdf"} target="_blank" rel="noopener">
+              Adapted GNAR Rulesheet for Vail
+            </Link>
+          </Button>
+          <Button variant="outlined" color="primary">
+            <Link href={"http://squallywood.com/"} target="_blank" rel="noopener">
+              Squallywood
+            </Link>
+          </Button>
+          <Button variant="outlined" color="primary">
+            <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} target="_blank" rel="noopener">
+              Vail Trailmaps
+            </Link>
+          </Button>
         </div>
       )
     } else {
@@ -238,7 +230,7 @@ function AlertDialog({ title, content }) {
   };
 
   return (
-    <div>
+    <React.Fragment>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
         {title}
       </Button>
@@ -260,7 +252,7 @@ function AlertDialog({ title, content }) {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </React.Fragment>
   );
 }
 
