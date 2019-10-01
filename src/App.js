@@ -1,7 +1,7 @@
 
 import React from 'react';
+import { HashRouter, Route } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -83,12 +83,16 @@ class App extends React.Component {
 
   async componentDidMount() {
     if(localStorage.getItem('challenges') === null) {
+      console.log('Fetching JSON data source')
       await fetch('https://joshwa-moellenkamp.github.io/GNAR/source.json')
       .then(function(response) {
         return response.json();
       })
       .then(function(json) {
         localStorage.setItem('challenges', JSON.stringify(json));
+      })
+      .catch((err) => {
+        console.error('Failed to fetch JSON data source')
       })
     }
 
@@ -155,52 +159,54 @@ class App extends React.Component {
     }
     
     return (
-      <div style={{ padding: "5% 5%" }}>
-        <Scoreboard challenges={this.state.challenges} completed={this.state.completed}/>
-        <div style={{ padding: "2em .1em" }}>
-          <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
-            <div>
-              <TextFilter onFilter={({target: {value: filter}}) => this.setState({filter})} placeholder="Search for a Challenge (min. 3 characters)" minLength={minLengthForChallengeFilter}/>
-              <List items={filteredChallenges} challenges={this.state.challenges} challengeCompleted={this.challengeCompleted.bind(this)} filter={this.state.filter}/>
-            </div>
-          </Card>
+      <HashRouter>
+        <div style={{ padding: "5% 5%" }}>
+          <Scoreboard challenges={this.state.challenges} completed={this.state.completed}/>
+          <div style={{ padding: "2em .1em" }}>
+            <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
+              <div>
+                <TextFilter onFilter={({target: {value: filter}}) => this.setState({filter})} placeholder="Search for a Challenge (min. 3 characters)" minLength={minLengthForChallengeFilter}/>
+                <List items={filteredChallenges} challenges={this.state.challenges} challengeCompleted={this.challengeCompleted.bind(this)} filter={this.state.filter}/>
+              </div>
+            </Card>
+          </div>
+          <CollapsibleCategoryCollection
+            challenges={this.state.challenges}
+            categories={this.state.categories}
+            challengeCompleted={this.challengeCompleted.bind(this)}
+          />
+          <CollapsibleChallengesCompleted
+            challenges={this.state.challenges}
+            completed={this.state.completed}
+            challengeDecrement={this.challengeDecrement.bind(this)}
+          />
+          <AlertDialog
+            title={"Background"}
+            content={
+              "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
+              "to the ski industry taking itself altogether too seriously. "+
+              "Earn points for riding particularly rad lines or achieving particularly " +
+              "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
+              "Losers pay for beer."
+            }
+          />
+          <Button variant="outlined" color="primary">
+            <Link href={"http://simplemethod.com/GNAR.pdf"} target="_blank" rel="noopener">
+              Adapted GNAR Rulesheet for Vail
+            </Link>
+          </Button>
+          <Button variant="outlined" color="primary">
+            <Link href={"http://squallywood.com/"} target="_blank" rel="noopener">
+              Squallywood
+            </Link>
+          </Button>
+          <Button variant="outlined" color="primary">
+            <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} target="_blank" rel="noopener">
+              Vail Trailmaps
+            </Link>
+          </Button>
         </div>
-        <CollapsibleCategoryCollection
-          challenges={this.state.challenges}
-          categories={this.state.categories}
-          challengeCompleted={this.challengeCompleted.bind(this)}
-        />
-        <CollapsibleChallengesCompleted
-          challenges={this.state.challenges}
-          completed={this.state.completed}
-          challengeDecrement={this.challengeDecrement.bind(this)}
-        />
-        <AlertDialog
-          title={"Background"}
-          content={
-            "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
-            "to the ski industry taking itself altogether too seriously. "+
-            "Earn points for riding particularly rad lines or achieving particularly " +
-            "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
-            "Losers pay for beer."
-          }
-        />
-        <Button variant="outlined" color="primary">
-          <Link href={"http://simplemethod.com/GNAR.pdf"} target="_blank" rel="noopener">
-            Adapted GNAR Rulesheet for Vail
-          </Link>
-        </Button>
-        <Button variant="outlined" color="primary">
-          <Link href={"http://squallywood.com/"} target="_blank" rel="noopener">
-            Squallywood
-          </Link>
-        </Button>
-        <Button variant="outlined" color="primary">
-          <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} target="_blank" rel="noopener">
-            Vail Trailmaps
-          </Link>
-        </Button>
-      </div>
+      </HashRouter>
     )
   }
 }

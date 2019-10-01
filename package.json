@@ -1,7 +1,7 @@
 {
   "name": "gnarly",
   "version": "0.1.0",
-  "homepage": "https://joshwa-moellenkamp.github.io/GNARv2/",
+  "homepage": "https://joshwa-moellenkamp.github.io/gnarly",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.4.2",
@@ -9,13 +9,14 @@
     "react": "^16.9.0",
     "react-collapsible": "^2.6.0",
     "react-dom": "^16.9.0",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.1.1",
     "react-text-filter": "^3.0.1",
     "typeface-roboto": "0.0.75"
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -b master -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
