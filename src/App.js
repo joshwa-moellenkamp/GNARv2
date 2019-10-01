@@ -146,8 +146,6 @@ class App extends React.Component {
       })
     }
 
-    console.log('challengesForFilter: ', challengesForFilter)
-
     const filteredChallenges = this.state.filter ?
       challengesForFilter.filter(challengeFilter(this.state.filter)) :
       challengesForFilter.slice(0)
