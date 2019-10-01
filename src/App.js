@@ -19,7 +19,6 @@ import Link from '@material-ui/core/Link';
 import { green, red } from '@material-ui/core/colors';
 import { TextFilter } from 'react-text-filter';
 
-
 const useStyles = makeStyles(theme => ({
   padding: "3em 3em",
   card: {
@@ -66,7 +65,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const challengeFilter = filter => challenge => challenge.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+const minLengthForChallengeFilter = 3
 
 class Challenge {
   constructor(points, description, other) {
@@ -96,25 +95,22 @@ class App extends React.Component {
     var categories = []
     var challenges = new Map()
     let data = JSON.parse(localStorage.getItem('challenges'))
-    var i = 0
     Object.keys(data).forEach((category) => {
       var categoryKeys = []
       data[category].forEach((challenge) => {
         categoryKeys.push(challenge.name)
         var chall = new Challenge(challenge.points, challenge.description, challenge.other)
         challenges.set(challenge.name, chall)
-        i++
       })
       categories.push({category, categoryKeys})
     })
 
     // This map intended to have key (from challenges), value (number of times challenge completed)
     var completed = new Map()
-    this.setState({ challenges: challenges, categories: categories, completed: completed })
+    this.setState({ challenges: challenges, categories: categories, completed: completed, filter: '' })
   }
 
   challengeCompleted(key) {
-    console.log('challengeCompleted() key: ', key)
     var completed = this.state.completed
     if(!this.state.completed.has(key)) {
       completed.set(key, 1)
@@ -141,82 +137,73 @@ class App extends React.Component {
   }
 
   render () {
-    var challenges = []
+    const challengeFilter = filter => challenge => challenge.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+    
+    var challengesForFilter = []
     if(this.state.challenges != null) {
-      this.state.challenges.forEach((challenge, id) => {
-        challenges.push(challenge.name)
+      this.state.challenges.forEach((challenge, name) => {
+        challengesForFilter.push(name)
       })
     }
 
-    const filteredChallenges = this.state.challengeFilter ?
-      challenges.filter(challengeFilter(this.state.challengeFilter)) :
-      challenges.slice(0);
+    console.log('challengesForFilter: ', challengesForFilter)
 
-    // console.log(filteredChallenges)
-
-    if(this.state.challenges != null) {
-      return (
-        <div style={{ padding: "5% 5%" }}>
-          <Scoreboard
-            challenges={this.state.challenges}
-            completed={this.state.completed}
-          />
-          <div style={{ padding: "2em .1em" }}>
-            <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
-              <Collapsible
-                transitionTime={300}
-                trigger={"Search for a Challenge"}
-                style={{ fontWeight: "bolder" }}
-              >
-                <TextFilter onFilter={({target: {value: challengeFilter}}) => this.setState({challengeFilter})}/>
-                <List
-                  items={filteredChallenges}
-                  challenges={challenges}
-                  challengeCompleted={this.challengeCompleted.bind(this)}
-                />
-              </Collapsible>
-            </Card>
-          </div>
-          <CollapsibleCategoryCollection
-            challenges={this.state.challenges}
-            categories={this.state.categories}
-            challengeCompleted={this.challengeCompleted.bind(this)}
-          />
-          <CollapsibleChallengesCompleted
-            challenges={this.state.challenges}
-            completed={this.state.completed}
-            challengeDecrement={this.challengeDecrement.bind(this)}
-          />
-          <AlertDialog
-            title={"Background"}
-            content={
-              "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
-              "to the ski industry taking itself altogether too seriously. "+
-              "Earn points for riding particularly rad lines or achieving particularly " +
-              "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
-              "Losers pay for beer."
-            }
-          />
-          <Button variant="outlined" color="primary">
-            <Link href={"http://simplemethod.com/GNAR.pdf"} target="_blank" rel="noopener">
-              Adapted GNAR Rulesheet for Vail
-            </Link>
-          </Button>
-          <Button variant="outlined" color="primary">
-            <Link href={"http://squallywood.com/"} target="_blank" rel="noopener">
-              Squallywood
-            </Link>
-          </Button>
-          <Button variant="outlined" color="primary">
-            <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} target="_blank" rel="noopener">
-              Vail Trailmaps
-            </Link>
-          </Button>
-        </div>
-      )
-    } else {
+    const filteredChallenges = this.state.filter ?
+      challengesForFilter.filter(challengeFilter(this.state.filter)) :
+      challengesForFilter.slice(0)
+  
+    if(this.state.challenges == null) {
       return null
     }
+    
+    return (
+      <div style={{ padding: "5% 5%" }}>
+        <Scoreboard challenges={this.state.challenges} completed={this.state.completed}/>
+        <div style={{ padding: "2em .1em" }}>
+          <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
+            <div>
+              <TextFilter onFilter={({target: {value: filter}}) => this.setState({filter})} placeholder="Search for a Challenge (min. 3 characters)" minLength={minLengthForChallengeFilter}/>
+              <List items={filteredChallenges} challenges={this.state.challenges} challengeCompleted={this.challengeCompleted.bind(this)} filter={this.state.filter}/>
+            </div>
+          </Card>
+        </div>
+        <CollapsibleCategoryCollection
+          challenges={this.state.challenges}
+          categories={this.state.categories}
+          challengeCompleted={this.challengeCompleted.bind(this)}
+        />
+        <CollapsibleChallengesCompleted
+          challenges={this.state.challenges}
+          completed={this.state.completed}
+          challengeDecrement={this.challengeDecrement.bind(this)}
+        />
+        <AlertDialog
+          title={"Background"}
+          content={
+            "GNAR (Gaffney's Numerical Assessment of Radness) is a response " +
+            "to the ski industry taking itself altogether too seriously. "+
+            "Earn points for riding particularly rad lines or achieving particularly " +
+            "hilarious tasks. Lose points for doing anything uncharictaristically lame. " +
+            "Losers pay for beer."
+          }
+        />
+        <Button variant="outlined" color="primary">
+          <Link href={"http://simplemethod.com/GNAR.pdf"} target="_blank" rel="noopener">
+            Adapted GNAR Rulesheet for Vail
+          </Link>
+        </Button>
+        <Button variant="outlined" color="primary">
+          <Link href={"http://squallywood.com/"} target="_blank" rel="noopener">
+            Squallywood
+          </Link>
+        </Button>
+        <Button variant="outlined" color="primary">
+          <Link href={"https://www.vail.com/the-mountain/about-the-mountain/trail-map.aspx"} target="_blank" rel="noopener">
+            Vail Trailmaps
+          </Link>
+        </Button>
+      </div>
+    )
   }
 }
 
@@ -234,12 +221,7 @@ function AlertDialog({ title, content }) {
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
         {title}
       </Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
+      <Dialog open={open} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -256,18 +238,11 @@ function AlertDialog({ title, content }) {
   );
 }
 
-function Item({ item }) {
-  return <li>{item}</li>
-}
+function List({ items, challenges, challengeCompleted, filter }) {
+  if(filter.length < minLengthForChallengeFilter) {
+    return null
+  }
 
-function List({ items, challenges, challengeCompleted }) {
-  const classes = useStyles();
-  console.log('items: ', items)
-  //const Items = items.map(item => <Item key={item} item={item} />);
-  // return <ul>{Items}</ul>;
-  // console.log('items: ', items);
-  // console.log('challenges: ', challenges);
-  // console.log('challengeCompleted: ', challengeCompleted);
   return (
     <Table style={{ tableLayout: "auto" }}>
       <TableHead>
@@ -282,29 +257,24 @@ function List({ items, challenges, challengeCompleted }) {
         {items.map((item) => (
           <TableRow key={item}>
             <TableCell>
-              <Button
-                variant="contained"
-                className={classes.button}
-                // onClick={(e) => challengeCompleted(key)}
-              >
+              <GreenButton variant="contained" onClick={(e) => challengeCompleted(item)}>
                 Complete
-              </Button>
+              </GreenButton>
             </TableCell>
             <TableCell>
               {item}
             </TableCell>
             <TableCell>
-              {/* {challenges.get(value[0]).points} */}
+              {challenges.get(item).points}
             </TableCell>
             <TableCell>
-              {/* {challenges.get(value[0]).description} */}
+              {challenges.get(item).description}
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
   )
-
 }
 
 function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrement }) {
@@ -313,21 +283,13 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
     return (
       <div style={{ padding: "2em .1em" }}>
         <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
-          <Collapsible
-            transitionTime={300}
-            trigger={"Completed Challenges"}
-            style={{ fontWeight: "bolder" }}
-          >
+          <Collapsible transitionTime={300} trigger={"Completed Challenges"} style={{ fontWeight: "bolder" }}>
             <h5>You haven't completed any challenges yet! Get out there for heck's sake!</h5>
           </Collapsible>
         </Card>
       </div>
     )
   }
-
-  Array.from(completed).map((value) => (
-    console.log('completed value: ', value)
-  ))
 
   return (
     <div style={{ padding: "2em .1em" }}>
@@ -351,11 +313,7 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
               {Array.from(completed).map((value) => (
                 <TableRow>
                   <TableCell>
-                    <RedButton 
-                      variant="contained" 
-                      className={classes.button}
-                      onClick={(e) => challengeDecrement(value[0])}
-                    >
+                    <RedButton variant="contained" className={classes.button} onClick={(e) => challengeDecrement(value[0])}>
                       {value[1] > 1 ? 'Decrement' : 'Remove'}
                     </RedButton>
                   </TableCell>
@@ -429,11 +387,7 @@ const RedButton = withStyles(theme => ({
   },
 }))(Button);
 
-function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, challengeCompleted }) {
-  // Array.from(categoryChallengeIds).map((challenge) => (
-  //   console.log(challenge)
-  // ))
-  
+function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, challengeCompleted }) {  
   return (
     <Collapsible 
       transitionTime={300}
@@ -452,10 +406,7 @@ function CollapsibleCategory({ categoryName, categoryChallengeIds, challenges, c
           {Array.from(categoryChallengeIds).map((challenge) => (
             <TableRow key={challenge}>
               <TableCell>
-                <GreenButton
-                  variant="contained"
-                  onClick={(e) => challengeCompleted(challenge)}
-                >
+                <GreenButton variant="contained" onClick={(e) => challengeCompleted(challenge)}>
                   Complete
                 </GreenButton>
               </TableCell> 
