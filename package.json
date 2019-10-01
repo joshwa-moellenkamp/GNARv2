@@ -1,7 +1,7 @@
 {
   "name": "gnarly",
   "version": "0.1.0",
-  "homepage": "https://joshwa-moellenkamp.github.io/gnarly",
+  "homepage": "https://joshwa-moellenkamp.github.io/GNARv2",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.4.2",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b master -d build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
