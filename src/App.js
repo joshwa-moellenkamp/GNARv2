@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { HashRouter, Route } from 'react-router-dom';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { HashRouter } from 'react-router-dom';
+import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -17,53 +17,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Link from '@material-ui/core/Link';
 import { green, red } from '@material-ui/core/colors';
-import { TextFilter } from 'react-text-filter';
-
-const useStyles = makeStyles(theme => ({
-  padding: "3em 3em",
-  card: {
-    minWidth: 275,
-    padding: "15px",
-    border: "1px solid #ccc",
-  },
-  bullet: {
-    display: 'inline-block',
-    margin: '0 2px',
-    transform: 'scale(0.8)',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  pos: {
-    marginBottom: 12,
-  },
-  challenge: {
-    // fontSize: 16,
-    // fontWeight: "bold", 
-  },
-  pointVal: {
-    // fontSize: 16,
-    // fontWeight: "bolder",
-    // color: "#3483eb",
-  },
-  button: {
-    margin: theme.spacing(1)
-  },
-  description: {
-    fontSize: 12,
-    fontWeight: 400
-  },
-  category: {
-    fontSize: 20,
-    fontWeight: "bolder",
-    padding: "0em 1em"
-  },
-  tableDiv: {
-    padding: "5em 5em",
-    color: "red"
-  }
-}));
+import TextFilter from 'react-text-filter';
 
 const minLengthForChallengeFilter = 3
 
@@ -282,7 +236,6 @@ function List({ items, challenges, challengeCompleted, filter }) {
 }
 
 function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrement }) {
-  const classes = useStyles();
   if(Array.from(completed) === 'undefined' || Array.from(completed).length === 0) {
     return (
       <div style={{ padding: "2em .1em" }}>
@@ -297,7 +250,7 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
 
   return (
     <div style={{ padding: "2em .1em" }}>
-      <Card className={classes.card}>
+      <Card style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
         <Collapsible
           transitionTime={300}
           trigger={"Completed Challenges"}
@@ -317,18 +270,18 @@ function CollapsibleChallengesCompleted({ challenges, completed, challengeDecrem
               {Array.from(completed).map((value) => (
                 <TableRow>
                   <TableCell>
-                    <RedButton variant="contained" className={classes.button} onClick={(e) => challengeDecrement(value[0])}>
+                    <RedButton variant="contained" onClick={(e) => challengeDecrement(value[0])}>
                       {value[1] > 1 ? 'Decrement' : 'Remove'}
                     </RedButton>
                   </TableCell>
                   <TableCell>{value[1]}</TableCell>
-                  <TableCell className={classes.challenge}>
+                  <TableCell>
                     {value[0]}
                   </TableCell>
-                  <TableCell className={classes.pointVal}>
+                  <TableCell>
                     {challenges.get(value[0]).points}
                   </TableCell>
-                  <TableCell className={classes.description}>
+                  <TableCell>
                     {challenges.get(value[0]).description}
                   </TableCell>
                 </TableRow>
@@ -353,12 +306,11 @@ function Scoreboard({ challenges, completed }) {
 } 
 
 function CollapsibleCategoryCollection({ challenges, categories, challengeCompleted }) {
-  const classes = useStyles();
   var i = 0
   return (
     categories.map((category) => (
       <div style={{padding: ".1em .1em"}}>
-        <Card className={classes.card} key={i++}>
+        <Card key={i++} style={{ minWidth: 275, padding: "15px", border: "1px solid #ccc" }}>
           <CollapsibleCategory
             categoryName={category.category}
             categoryChallengeIds={category.categoryKeys}
